@@ -17,7 +17,13 @@ class MoleculeList(MoleculeListABC):
         return self._data[i]
 
     def __setitem__(self, i, molecule):
-        pass  # todo: homework!
+        if isinstance(molecule, Molecule):
+            self._data[i] = molecule
+        else:
+            raise TypeError('Only Molecule acceptable')
+
+    def __repr__(self):
+        return 'MoleculeList()'
 
 
 class Reaction(ReactionABC):
