@@ -3,36 +3,39 @@ from ..algorithms import Isomorphism
 
 
 class Molecule(Isomorphism, MoleculeABC):
-    def __init__(self, atoms, bonds):
-        super().__init__()
-        if isinstance(atoms, dict) and isinstance(bonds, dict):
-            self._atoms = atoms
-            self._bonds = bonds
-        else:
-            print('Atoms and bonds must be dictionary')
-            raise TypeError
-
     def add_atom(self, element: str, number: int):
-        if number in self._atoms:
-            print('Atom has already exist')
-            raise IndexError
+        if isinstance(element, str) and isinstance(number, int):
+            if number in self._atoms:
+                raise KeyError('This atom already exists')
+            else:
+                self._atoms[number] = element
         else:
-            self._atoms[number] = element
-            self._bonds[number] = {}
+            raise TypeError('Atom should be string and number should be integer')
 
     def add_bond(self, start_atom: int, end_atom: int, bond_type: int):
-        if start_atom == end_atom:
-            print('Atom cannot have a bond with itself')
-            raise ValueError
-        elif start_atom in self._bonds and end_atom in self._bonds[start_atom]:
-            print('Bond has already exist')
-            raise IndexError
-        elif start_atom in self._bonds:
-            self._bonds[start_atom][end_atom] = bond_type
-            self._bonds[end_atom][start_atom] = bond_type
+        if isinstance(start_atom, int) and isinstance(end_atom, int) and isinstance(bond_type, int):
+            if start_atom in self._atoms and end_atom in self._atoms:
+                if start_atom == end_atom:
+                    raise KeyError('Atoms should be different')
+                elif start_atom in self._bonds:
+                    self._bonds[start_atom].update({end_atom: bond_type})
+                    if end_atom in self._bonds:
+                        self._bonds[end_atom].update({start_atom: bond_type})
+                    else:
+                        self._bonds[end_atom] = {start_atom: bond_type}
+                elif end_atom in self._bonds:
+                    self._bonds[end_atom].update({start_atom: bond_type})
+                    if start_atom in self._bonds:
+                        self._bonds[start_atom].update({end_atom: bond_type})
+                    else:
+                        self._bonds[start_atom] = {end_atom: bond_type}
+                else:
+                    self._bonds[start_atom] = {end_atom: bond_type}
+                    self._bonds[end_atom] = {start_atom: bond_type}
+            else:
+                raise KeyError('This atoms do not exist')
         else:
-            self._bonds[start_atom] = {end_atom: bond_type}
-            self._bonds[end_atom] = {start_atom: bond_type}
+            raise TypeError('Arguments should be integers')
 
 
 __all__ = ['Molecule']
