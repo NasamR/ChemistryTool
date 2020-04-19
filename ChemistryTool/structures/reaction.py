@@ -1,5 +1,6 @@
 from .abc import ReactionABC, MoleculeListABC
 from .molecule import Molecule
+from itertools import tee
 
 
 class MoleculeList(MoleculeListABC):
@@ -17,10 +18,20 @@ class MoleculeList(MoleculeListABC):
         return self._data[i]
 
     def __setitem__(self, i, molecule):
-        if isinstance(molecule, Molecule):
-            self._data[i] = molecule
+        if isinstance(i, slice):
+            if isinstance(molecule, list):
+                test = [i for i in molecule if isinstance(i, Molecule)]
+                if len(test) == len(molecule):
+                    self._data[i] = molecule
+                else:
+                    raise TypeError('Arguments should be object of Molecule() class')
+            else:
+                raise TypeError('Argument should be ITERABLE')
         else:
-            raise TypeError('Only Molecule acceptable')
+            if isinstance(molecule, Molecule):
+                self._data[i] = molecule
+            else:
+                raise TypeError('Only Molecule acceptable')
 
     def __repr__(self):
         return 'MoleculeList()'
