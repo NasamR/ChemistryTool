@@ -5,24 +5,23 @@ from ..periodictable.element import Element
 
 class Molecule(Isomorphism, MoleculeABC):
     def add_atom(self, element: str, number: int):
-        if isinstance(element, str) and isinstance(number, int):
+        if isinstance(element, Element) and isinstance(number, int):
             if number in self._atoms:
                 raise KeyError('This atom already exists')
             else:
                 self._atoms[number] = element
                 self._bonds[number] = {}
         else:
-            raise TypeError('Atom should be string and number should be integer')
+            raise TypeError
 
     def add_bond(self, start_atom: int, end_atom: int, bond_type: int):
         if start_atom in self._atoms and end_atom in self._atoms:
             if start_atom == end_atom:
                 raise KeyError('Atoms should be different')
-            elif self._bonds[start_atom].get(end_atom, False):
+            elif end_atom in self._bonds[start_atom]:
                 raise KeyError('This bond already exists')
             else:
-                self._bonds[start_atom].update({end_atom: bond_type})
-                self._bonds[end_atom].update({start_atom: bond_type})
+                self._bonds[start_atom][end_atom] = self._bonds[end_atom][start_atom] = bond_type
         else:
             raise KeyError('This atoms do not exist')
 
@@ -43,22 +42,37 @@ class Molecule(Isomorphism, MoleculeABC):
         del self._bonds[end_atom][start_atom]
 
     def update_atom(self, element: Element, number: int):
-        if isinstance(element, Element):
-            self._atoms[number] = element
+        if self._atoms[number]:
+            if isinstance(element, Element):
+                self._atoms[number] = element
+            else:
+                raise TypeError
         else:
-            raise TypeError('')
+            raise KeyError('This atom is not exist')
 
     def update_bond(self, start_atom: int, end_atom: int, bond_type: int):
-        pass
+        if self._bonds[start_atom][end_atom]:
+            self._bonds[start_atom][end_atom] = self._bonds[end_atom][start_atom] = bond_type
+        else:
+            raise KeyError('This bond is not exist')
 
     def __enter__(self):
-        pass
+        self._backup_atoms = self._atoms.copy()
+        self._backup_bonds = {x.copy(): y.copy() for x, y in self._atoms.items()}
+        return self._atoms, self._bonds
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        if exc_val:
+            self._atoms = self._backup_atoms
+            self._bonds = self._backup_bonds
+            del self._backup_atoms
+            del self._backup_bonds
 
     def __str__(self):
-        pass
+        s = ''
+        for a in set(self._atoms.values()):
+            s += f'{a}{list(self._atoms.values()).count(a)}'
+        return s
 
 
 __all__ = ['Molecule']
