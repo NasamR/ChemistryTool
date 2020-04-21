@@ -2,8 +2,7 @@ from .element import Element
 
 
 class C(Element):
-    def __repr__(self):
-        return 'C()'
+    __slots__ = ()
 
 
 __all__ = ['C']
