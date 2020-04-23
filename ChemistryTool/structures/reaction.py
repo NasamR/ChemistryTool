@@ -4,6 +4,7 @@ from .molecule import Molecule
 
 
 class MoleculeList(MoleculeListABC):
+    __slots__ = ()
     def insert(self, i, molecule):
         if isinstance(molecule, Molecule):
             self._data.insert(i, molecule)

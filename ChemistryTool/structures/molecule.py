@@ -4,6 +4,7 @@ from ..periodictable.element import Element
 
 
 class Molecule(Isomorphism, MoleculeABC):
+    __slots__ = ()
     def add_atom(self, element: str, number: int):
         if isinstance(element, Element) and isinstance(number, int):
             if number in self._atoms:
