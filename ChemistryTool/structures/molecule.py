@@ -1,9 +1,23 @@
+from typing import Tuple
+
 from .abc import MoleculeABC
 from ..algorithms import Isomorphism
 from ..periodictable.element import Element
 
 
 class Molecule(Isomorphism, MoleculeABC):
+    @property
+    def connected_components(self) -> Tuple[Tuple[int, ...], ...]:
+        pass
+
+    @property
+    def connected_components_count(self) -> int:
+        pass
+
+    @property
+    def rings_count(self) -> int:
+        pass
+
     __slots__ = ()
     def add_atom(self, element: str, number: int):
         if isinstance(element, Element) and isinstance(number, int):
