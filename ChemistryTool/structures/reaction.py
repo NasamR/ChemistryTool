@@ -21,8 +21,7 @@ class MoleculeList(MoleculeListABC):
     def __setitem__(self, i, molecule):
         if isinstance(i, slice):
             test, molecule = tee(molecule, 2)
-            molecule = list(molecule)
-            if len([i for i in test if isinstance(i, Molecule)]) == len(molecule):
+            if all(isinstance(mol, Molecule) for mol in test):
                 self._data[i] = list(molecule)
             else:
                 raise TypeError

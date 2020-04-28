@@ -6,26 +6,17 @@ from ..periodictable.element import Element
 
 
 class Molecule(Isomorphism, MoleculeABC):
-    @property
-    def connected_components(self) -> Tuple[Tuple[int, ...], ...]:
-        pass
-
-    @property
-    def connected_components_count(self) -> int:
-        pass
-
-    @property
-    def rings_count(self) -> int:
-        pass
-
     __slots__ = ()
-    def add_atom(self, element: str, number: int):
+
+    def add_atom(self, element: Element, number: int):
         if isinstance(element, Element) and isinstance(number, int):
             if number in self._atoms:
                 raise KeyError('This atom already exists')
             else:
                 self._atoms[number] = element
                 self._bonds[number] = {}
+                element.attach(self, number)
+
         else:
             raise TypeError
 
@@ -82,12 +73,52 @@ class Molecule(Isomorphism, MoleculeABC):
             self._bonds = self._backup_bonds
             del self._backup_atoms
             del self._backup_bonds
+        else:
+            del self._backup_atoms
+            del self._backup_bonds
 
     def __str__(self):
         s = ''
         for a in set(self._atoms.values()):
             s += f'{a}{list(self._atoms.values()).count(a)}'
         return s
+
+    def plane_graph(self):
+        bonds = self._bonds
+        start = 1
+        seen = {start}
+        depth = 1
+        stack = [(start, m, b, depth) for m, b in bonds[start].items()]
+        path = []
+        closures = []
+        while stack:
+            previous, current, bond, d = move = stack.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            path.append(move)
+            depth += 1
+            for m, b in bonds[current].items():
+                if m == previous:
+                    continue
+                elif m in seen:
+                    closures.append((m, current, b, depth))
+                else:
+                    stack.append((current, m, b, depth))
+        return start, path, closures
+
+
+    @property
+    def connected_components(self) -> Tuple[Tuple[int, ...], ...]:
+        pass
+
+    @property
+    def connected_components_count(self) -> int:
+        pass
+
+    @property
+    def rings_count(self) -> int:
+        pass
 
 
 __all__ = ['Molecule']
